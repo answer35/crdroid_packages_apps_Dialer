@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2018 The Android Open Source Project
+  ~ Copyright (C) 2021 NezukoOS
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,12 +15,6 @@
   ~ limitations under the License
   -->
 <resources>
-    <!-- Essential theme colors -->
-    <color name="dialer_theme_color_dark">#1b1b1b</color>
-    <color name="dialer_background_color">@android:color/system_neutral1_900</color>
-    <color name="dialer_background_floating">@android:color/system_neutral1_800</color>
-    <color name="dialer_search_bar_color">@android:color/system_neutral1_800</color>
-    <color name="rounded_dialpad_bg_color">@android:color/system_neutral1_800</color>
-    <color name="dialer_theme_color_light">#1b1b1b</color>
-    <color name="dialer_theme_color">#1b1b1b</color>
+    <color name="goolag_deez_nutz">#ff8ab4f8</color>
+    <color name="goolag_tint">#508ab4f8</color>
 </resources>

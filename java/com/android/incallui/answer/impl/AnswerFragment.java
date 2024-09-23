@@ -28,6 +28,7 @@ import android.app.KeyguardManager.KeyguardDismissCallback;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -36,10 +37,14 @@ import android.os.Looper;
 import android.os.Trace;
 import android.text.TextUtils;
 import android.transition.TransitionManager;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.SurfaceControl;
 import android.view.View;
 import android.view.View.AccessibilityDelegate;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.Window;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction;
@@ -557,7 +562,6 @@ public class AnswerFragment extends Fragment
       if (!(current instanceof AvatarFragment)) {
         LogUtil.i("AnswerFragment.updateDataFragment", "Replacing avatar fragment");
         // Needs replacement
-        newFragment = new AvatarFragment();
       }
     } else {
       // Needs empty
@@ -661,6 +665,14 @@ public class AnswerFragment extends Fragment
     }
 
     View view = inflater.inflate(res, container, false);
+        Window window = getActivity().getWindow();
+        window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+	window.setStatusBarColor(Color.TRANSPARENT);
+        window.setNavigationBarColor(Color.TRANSPARENT);
+        window.setNavigationBarContrastEnforced(false);
+        window.setDecorFitsSystemWindows(false);
+        window.getDecorView().setSystemUiVisibility(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        view.setFitsSystemWindows(false);
     secondaryButton = (SwipeButtonView) view.findViewById(R.id.incoming_secondary_button);
     answerAndReleaseButton = (SwipeButtonView) view.findViewById(R.id.incoming_secondary_button2);
 
@@ -682,7 +694,8 @@ public class AnswerFragment extends Fragment
         });
     updateImportanceBadgeVisibility();
 
-    contactGridManager = new ContactGridManager(view, null, 0, false /* showAnonymousAvatar */);
+    contactGridManager = new ContactGridManager(view, ((ImageView)view.findViewById(R.id.contactgrid_avatar2)), getResources().getDimensionPixelSize(R.dimen.incall_avatar_size), true /* showAnonymousAvatar */);
+    contactGridManager.setAvatarHidden(false);
     boolean isInMultiWindowMode = getActivity().isInMultiWindowMode();
     contactGridManager.onMultiWindowModeChanged(isInMultiWindowMode);
 
@@ -1110,14 +1123,17 @@ public class AnswerFragment extends Fragment
     @Override
     public View onCreateView(
         LayoutInflater layoutInflater, @Nullable ViewGroup viewGroup, @Nullable Bundle bundle) {
-      SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-      boolean isFullscreenPhoto = mPrefs.getBoolean("fullscreen_caller_photo", false);
+	View v = layoutInflater.inflate(R.layout.fragment_avatar, viewGroup, false);
+        Window window = getActivity().getWindow();
+        window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        window.setStatusBarColor(Color.TRANSPARENT);
+        window.setNavigationBarColor(Color.TRANSPARENT);
+        window.setNavigationBarContrastEnforced(false);
+        window.setDecorFitsSystemWindows(false);
+        window.getDecorView().setSystemUiVisibility(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+	v.setFitsSystemWindows(false);
 
-      int res = R.layout.fragment_avatar;
-      if(isFullscreenPhoto){
-        res = R.layout.fragment_avatar_fullscreen_photo;
-      }
-      return layoutInflater.inflate(res, viewGroup, false);
+      return v;
     }
 
     @Override

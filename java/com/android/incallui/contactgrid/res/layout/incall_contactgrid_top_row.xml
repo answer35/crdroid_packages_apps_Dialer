@@ -19,7 +19,7 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="wrap_content"
   android:layout_height="wrap_content"
-  android:gravity="center"
+  android:gravity="start"
   android:orientation="horizontal"
   tools:showIn="@layout/incall_contact_grid">
   <ImageView
@@ -37,11 +37,14 @@
     />
   <TextView
     android:id="@id/contactgrid_status_text"
+    android:layout_gravity="start"
+    android:layout_marginStart="0dp"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:singleLine="true"
     android:ellipsize="marquee"
     android:scrollHorizontally="true"
     android:textAppearance="@style/Dialer.Incall.TextAppearance"
+    android:textColor="@android:color/white"
     tools:text="Captain Holt"/>
 </LinearLayout>

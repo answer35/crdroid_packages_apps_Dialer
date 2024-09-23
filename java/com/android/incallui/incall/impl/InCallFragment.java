@@ -19,19 +19,25 @@ package com.android.incallui.incall.impl;
 
 import android.Manifest;
 import android.Manifest.permission;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Insets;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.telecom.CallAudioState;
 import android.telephony.TelephonyManager;
 import android.transition.TransitionManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnAttachStateChangeListener;
@@ -39,7 +45,9 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowInsets;
+import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -50,6 +58,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator
 import androidx.preference.PreferenceManager;
 
 import com.android.dialer.R;
@@ -60,6 +69,7 @@ import com.android.dialer.multimedia.MultimediaData;
 import com.android.dialer.widget.LockableViewPager;
 import com.android.incallui.audioroute.AudioRouteSelectorDialogFragment;
 import com.android.incallui.audioroute.AudioRouteSelectorDialogFragment.AudioRouteSelectorPresenter;
+import com.android.incallui.call.state.DialerCallState;
 import com.android.incallui.contactgrid.ContactGridManager;
 import com.android.incallui.hold.OnHoldFragment;
 import com.android.incallui.incall.impl.ButtonController.CallRecordButtonController;
@@ -82,6 +92,8 @@ import com.android.incallui.incall.protocol.SecondaryInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /** Fragment that shows UI for an ongoing voice call. */
 public class InCallFragment extends Fragment
@@ -164,6 +176,9 @@ public class InCallFragment extends Fragment
     }
   }
 
+    Timer timer = new Timer();
+    TimerTask timerTask;
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -175,6 +190,8 @@ public class InCallFragment extends Fragment
     }
   }
 
+  private ImageView avatarImageView;
+
   @Nullable
   @Override
   @SuppressLint("MissingPermission")
@@ -184,6 +201,13 @@ public class InCallFragment extends Fragment
       @Nullable Bundle bundle) {
     LogUtil.i("InCallFragment.onCreateView", null);
     getActivity().setTheme(R.style.Theme_InCallScreen);
+        Window window = getActivity().getWindow();
+	window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        window.setStatusBarColor(Color.TRANSPARENT);
+        window.setNavigationBarColor(Color.TRANSPARENT);
+        window.setNavigationBarContrastEnforced(false);
+        window.setDecorFitsSystemWindows(false);
+        window.getDecorView().setSystemUiVisibility(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
     SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
     isFullscreenPhoto = mPrefs.getBoolean("fullscreen_caller_photo", false);
@@ -196,10 +220,12 @@ public class InCallFragment extends Fragment
       topPhoneContainer = view.findViewById(R.id.incall_contactgrid_container);
     }
 
+   this.view  = view;
+    avatarImageView = (ImageView) view.findViewById(R.id.contactgrid_avatar);
     contactGridManager =
         new ContactGridManager(
             view,
-            (ImageView) view.findViewById(R.id.contactgrid_avatar),
+            avatarImageView,
             getResources().getDimensionPixelSize(R.dimen.incall_avatar_size),
             true /* showAnonymousAvatar */);
     contactGridManager.onMultiWindowModeChanged(getActivity().isInMultiWindowMode());
@@ -244,6 +270,7 @@ public class InCallFragment extends Fragment
           @Override
           public void onViewDetachedFromWindow(View v) {}
         });
+    view.setFitsSystemWindows(false);
     return view;
   }
 
